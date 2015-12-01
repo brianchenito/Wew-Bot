@@ -4,6 +4,16 @@ import time
 import loginCredentials as cred # this only exists locally, you need to make your own
 import approvedSubs
 
+
+def safeprint(safe): # to help handle weird unicode stuff, its not gonna render right but it wont throw errors
+	try:
+		print(safe)
+	except UnicodeEncodeError:
+		if sys.version_info >= (3,):
+			print(safe.encode('utf8').decode(sys.stdout.encoding))
+		else:
+			print(safe.encode('utf8'))
+
 class WewBot():
 	def __init__(self):
 		global r # because there can only be one instance of this alive 
@@ -25,11 +35,14 @@ class WewBot():
 		for comment in comments:
 			print(".", end="")
 			if "wew" in str(comment.body).lower() or "ｗｅｗ" in str(comment.body).lower() or "w e w" in str(comment.body).lower() :
-				print("\nComment: {0} ".format(comment.body))
-				if self.wewCheck(comment):
-						print("\n okay to comment, commenting:\nＷＥＷ ＬＡＤ\n\nＥ\n\nＷ\n\n \n\nＬ\n\nＡ\n\nＤ")
-						comment.reply("ＷＥＷ ＬＡＤ\n\nＥ\n\nＷ\n\n \n\nＬ\n\nＡ\n\nＤ")
-						time.sleep(500)
+				safeprint("\nComment: {0} ".format(comment.body))
+				if len(comment.body.split())<3:
+					if self.wewCheck(comment):
+							safeprint("\n okay to comment, commenting.")
+							comment.reply("ＷＥＷ ＬＡＤ\n\nＥ\n\nＷ\n\n \n\nＬ\n\nＡ\n\nＤ")
+							time.sleep(500)
+				else:
+					print(" comment too long, probably not relevant")
 
 	def wewCheck(self,comment): #checks if a comment containing "wew lad is already present"
 		commentsCheck= comment.replies
@@ -48,7 +61,12 @@ if __name__ == "__main__":
 		bot=WewBot()
 
 		while True:
-			print("Active Bot: {0}".format(bot.authenticatedUser))
-			bot.checkComments(approvedSubs.approved)
-			bot.refreshToken()
-			print("refreshing search\n")
+			try:# sometimes the api times out, or the servers go down
+				print("Active Bot: {0}".format(bot.authenticatedUser))
+				bot.checkComments(approvedSubs.approved)
+				bot.refreshToken()
+				print("\nrefreshing search")
+			except:
+				time.sleep(600)
+				pass
+			
