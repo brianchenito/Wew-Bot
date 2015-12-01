@@ -34,9 +34,6 @@ class WewBot():
 	def wewCheck(self,comment): #checks if a comment containing "wew lad is already present"
 		commentsCheck= comment.replies
 		try:
-			if  "lad" in str(comment.body).lower() or "ｌａｄ" in str(comment.body).lower() or "l a d" in str(comment.body).lower():
-				print("found wew lad already in comments")
-				return False
 			for comment in commentsCheck:
 				if  "lad" in str(comment.body).lower() or "ｌａｄ" in str(comment.body).lower() or "l a d" in str(comment.body).lower():
 					print("found wew lad already in comments")
