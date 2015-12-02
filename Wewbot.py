@@ -3,6 +3,7 @@ import praw
 import time
 import loginCredentials as cred # this only exists locally, you need to make your own
 import approvedSubs
+import re
 
 
 def safeprint(safe): # to help handle weird unicode stuff, its not gonna render right but it wont throw errors
@@ -34,28 +35,31 @@ class WewBot():
 	def recurseComments(self,comments):
 		for comment in comments:
 			print(".", end="")
-			if "wew" in str(comment.body).lower() or "ｗｅｗ" in str(comment.body).lower() or "w e w" in str(comment.body).lower() :
+			if set(re.findall(r'\b(%s)\b' % '|'.join(["wew","ｗｅｗ","w e w"]), str(comment.body).lower())):
 				safeprint("\nComment: {0} ".format(comment.body))
 				if len(comment.body.split())<3:
 					if self.wewCheck(comment):
-							safeprint("\n okay to comment, commenting.")
-							comment.reply("ＷＥＷ ＬＡＤ\n\nＥ\n\nＷ\n\n \n\nＬ\n\nＡ\n\nＤ")
-							time.sleep(500)
+						safeprint("\n okay to comment, commenting.")
+						comment.reply("Ｗ Ｅ Ｗ  Ｌ Ａ Ｄ\n\nＥ\n\nＷ\n\n \n\nＬ\n\nＡ\n\nＤ")
+						time.sleep(300)
 				else:
-					print(" comment too long, probably not relevant")
+					print(" comment is too long, probably not relevant")	
 
 	def wewCheck(self,comment): #checks if a comment containing "wew lad is already present"
+
 		commentsCheck= comment.replies
 		try:
 			for comment in commentsCheck:
-				if  "lad" in str(comment.body).lower() or "ｌａｄ" in str(comment.body).lower() or "l a d" in str(comment.body).lower():
+				if "Ｌ Ａ Ｄ" in str(comment.body):
 					print("found wew lad already in comments")
-					return False	
+					return False
+				if str(comment.author)=="Wew_Bot":
+					return False
 			print("no reply 'wew lad' found")
 			return True
 		except AttributeError:
-			print(" hit moreComments(), safe to assume an 'wew lad' is not present")
-			return True
+			print(" hit moreComments()")
+			return False
 
 if __name__ == "__main__":
 		bot=WewBot()
@@ -66,7 +70,8 @@ if __name__ == "__main__":
 				bot.checkComments(approvedSubs.approved)
 				bot.refreshToken()
 				print("\nrefreshing search")
-			except:
-				time.sleep(600)
+			except Exception as e:
+				print("\nError {0}".format(str(e)))
+				time.sleep(300)
 				pass
 			
